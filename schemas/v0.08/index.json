@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ovpo.io/schemas/v0.08/index.json",
+  "title": "OVPO Schema Index (v0.08)",
+  "type": "object",
+  "properties": {
+    "schemas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "schemas"
+  ],
+  "additionalProperties": false,
+  "schemas": [
+    "schemas/v0.08/artifact_manifest.json",
+    "schemas/v0.08/frame_event.json",
+    "schemas/v0.08/ingest_batch.json",
+    "schemas/v0.08/schema_index.json",
+    "schemas/v0.08/span.json",
+    "schemas/v0.08/trace.json"
+  ]
+}

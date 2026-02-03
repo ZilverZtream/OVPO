@@ -1,0 +1,48 @@
+name: no-forbidden-comment-marker
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Scan for forbidden markers
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Words disallowed anywhere in code/comments/docs (case-insensitive).
+          # Add/remove as desired, but keep it strict.
+          PATTERN='(TODO|FIXME|BUG|HACK|XXX|ISSUE|RISK|WORKAROUND|TEMPORARY FIX|QUICKFIX)'
+
+          # Exclusions: vendor/build/output directories; adjust to your repo layout.
+          EXCLUDES=(
+            --exclude-dir=.git
+            --exclude-dir=node_modules
+            --exclude-dir=dist
+            --exclude-dir=build
+            --exclude-dir=out
+            --exclude-dir=.venv
+            --exclude-dir=venv
+            --exclude-dir=.mypy_cache
+            --exclude-dir=.ruff_cache
+            --exclude-dir=.pytest_cache
+          )
+
+          echo "Scanning for forbidden markers: $PATTERN"
+          if grep -RInE "${PATTERN}" . "${EXCLUDES[@]}"; then
+            echo
+            echo "Forbidden marker found. Remove it and explain via proper commit message / PR description instead."
+            exit 1
+          fi
+
+          echo "OK: No forbidden markers found."

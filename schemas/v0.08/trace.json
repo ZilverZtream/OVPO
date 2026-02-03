@@ -1,0 +1,161 @@
+{
+  "$id": "https://ovpo.dev/schemas/v0.08/trace.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OVPO VideoTrace v0.08",
+  "type": "object",
+  "required": [
+    "type",
+    "schema_version",
+    "trace_id",
+    "tenant_id",
+    "status",
+    "pipeline_config",
+    "input_context",
+    "created_at"
+  ],
+  "properties": {
+    "type": { "const": "trace" },
+    "schema_version": { "const": "0.08" },
+
+    "trace_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique trace identifier (UUID v4)"
+    },
+    "parent_trace_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Parent trace for multi-stage pipelines"
+    },
+    "tenant_id": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Tenant/organization identifier"
+    },
+    "user_id_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 hash of user identifier"
+    },
+
+    "status": {
+      "type": "string",
+      "enum": ["PENDING", "GENERATING", "COMPLETED", "FAILED", "CANCELLED", "TIMEOUT", "PARTIAL"],
+      "description": "Current trace status"
+    },
+
+    "pipeline_config": {
+      "type": "object",
+      "description": "Generation configuration snapshot"
+    },
+    "pipeline_config_ref": {
+      "type": "string",
+      "format": "uri",
+      "maxLength": 2048,
+      "description": "External reference to large config"
+    },
+
+    "input_context": {
+      "type": "object",
+      "required": ["prompt_hash"],
+      "properties": {
+        "prompt_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "SHA-256 hash of prompt"
+        },
+        "prompt_plaintext": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "Optional plaintext prompt (requires opt-in)"
+        },
+        "negative_prompt_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "output_manifest": {
+      "$ref": "artifact_manifest.json"
+    },
+
+    "cost_attribution": {
+      "type": "object",
+      "properties": {
+        "project": { "type": "string", "maxLength": 128 },
+        "center": { "type": "string", "maxLength": 128 },
+        "campaign": { "type": "string", "maxLength": 128 },
+        "tags": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "maxLength": 256 }
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "failure": {
+      "type": "object",
+      "required": ["kind", "message", "retryable"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["oom", "timeout", "crash", "cancelled", "hardware_error", "validation_error", "unknown"]
+        },
+        "message": { "type": "string", "maxLength": 2048 },
+        "retryable": { "type": "boolean" },
+        "stage": { "type": "string", "maxLength": 64 },
+        "error_code": { "type": "string", "maxLength": 64 },
+        "details": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+
+    "retry_count": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+
+    "tags": {
+      "type": "object",
+      "additionalProperties": { "type": "string", "maxLength": 256 },
+      "maxProperties": 50
+    },
+
+    "created_at": { "type": "string", "format": "date-time" },
+    "started_at": { "type": "string", "format": "date-time" },
+    "completed_at": { "type": "string", "format": "date-time" }
+  },
+
+  "allOf": [
+    {
+      "if": {
+        "properties": { "status": { "const": "FAILED" } },
+        "required": ["status"]
+      },
+      "then": {
+        "required": ["failure"]
+      }
+    },
+    {
+      "if": {
+        "properties": { "pipeline_config_ref": { "type": "string" } },
+        "required": ["pipeline_config_ref"]
+      },
+      "then": {
+        "properties": {
+          "pipeline_config": { "type": "object", "maxProperties": 0 }
+        }
+      }
+    }
+  ],
+
+  "additionalProperties": false
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": "0.08",
+  "batch_id": "d53bdac5-ba1e-4f10-a5c2-9fe1f0d86eda",
+  "sent_at": "2026-02-03T12:00:00Z",
+  "items": [
+    {
+      "type": "trace",
+      "schema_version": "0.08",
+      "trace_id": "f9ca7f0d-b1b5-4f18-b219-b904075dd0a2",
+      "tenant_id": "ten-demo",
+      "status": "GENERATING",
+      "pipeline_config": {
+        "engine": "diffusers",
+        "model": "demo-model",
+        "steps": 20
+      },
+      "input_context": {
+        "prompt_hash": "977874bd62e2ae01927ba54bf753dc1b5cb83891d6c5dfcfab0d770c83ffc101"
+      },
+      "created_at": "2026-02-03T12:00:00Z"
+    }
+  ]
+}

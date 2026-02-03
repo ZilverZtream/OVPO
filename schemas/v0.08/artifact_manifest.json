@@ -1,0 +1,44 @@
+{
+  "$id": "https://ovpo.dev/schemas/v0.08/artifact_manifest.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OVPO Artifact Manifest v0.08",
+  "type": "object",
+  "properties": {
+    "primary_output": {
+      "type": "object",
+      "required": ["url", "format", "checksum"],
+      "properties": {
+        "url": { "type": "string", "format": "uri", "maxLength": 2048 },
+        "format": { "type": "string", "maxLength": 32 },
+        "codec": { "type": "string", "maxLength": 64 },
+        "resolution": { "type": "string", "pattern": "^\\d+x\\d+$" },
+        "duration_sec": { "type": "number", "minimum": 0 },
+        "file_size_bytes": { "type": "integer", "minimum": 0 },
+        "checksum": {
+          "type": "string",
+          "pattern": "^(sha256|md5):[a-f0-9]{32,64}$",
+          "description": "Format: algorithm:hash"
+        }
+      },
+      "additionalProperties": false
+    },
+    "intermediate_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "url", "checksum"],
+        "properties": {
+          "type": { "type": "string", "maxLength": 64 },
+          "url": { "type": "string", "format": "uri", "maxLength": 2048 },
+          "ttl_hours": { "type": "integer", "minimum": 1 },
+          "checksum": {
+            "type": "string",
+            "pattern": "^(sha256|md5):[a-f0-9]{32,64}$"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

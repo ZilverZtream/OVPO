@@ -1,0 +1,137 @@
+repos:
+  # ------------------------------------------------------------
+  # Core hygiene (language-agnostic)
+  # ------------------------------------------------------------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-json
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: detect-private-key
+      - id: check-added-large-files
+        args: ["--maxkb=2048"]
+
+  # ------------------------------------------------------------
+  # Forbidden tokens & architectural guardrails
+  # ------------------------------------------------------------
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      # ABSOLUTE BAN: speculative / lazy comments
+      - id: pygrep
+        name: "Disallow forbidden tokens (TODO/FIXME/BUG/HACK/RISK/ISSUE/LATER)"
+        args:
+          - "--regexp"
+          - "(?i)\\b(TODO|FIXME|BUG|HACK|RISK|ISSUE|LATER)\\b"
+        exclude: |
+          (?x)^(
+            docs/.*|
+            spec/.*|
+            schemas/.*|
+            rfcs/.*|
+            SECURITY\\.md|
+            CODE_OF_CONDUCT\\.md|
+            CONTRIBUTING\\.md|
+            GOVERNANCE\\.md|
+            README\\.md
+          )$
+
+      # Cursor pagination only (NO OFFSET EVER)
+      - id: pygrep
+        name: "Disallow OFFSET pagination (cursor pagination only)"
+        args:
+          - "--regexp"
+          - "(?i)\\bOFFSET\\s+\\d+\\b"
+        exclude: |
+          (?x)^(
+            spec/.*|
+            docs/.*|
+            schemas/.*|
+            rfcs/.*
+          )$
+
+      # Guardrail: tenant_id must never be user-supplied
+      - id: pygrep
+        name: "Guardrail: forbid user-supplied tenant_id"
+        args:
+          - "--regexp"
+          - "(?i)(request\\.(args|get_json|get)\\(.*tenant_id|req\\.query.*tenant_id|tenant_id\\s*=\\s*request\\.)"
+        exclude: |
+          (?x)^(
+            spec/.*|
+            docs/.*|
+            schemas/.*|
+            rfcs/.*
+          )$
+
+  # ------------------------------------------------------------
+  # Python — formatting, linting, static correctness
+  # ------------------------------------------------------------
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.0
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+
+  - repo: https://github.com/python/mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        args:
+          - "--strict"
+          - "--no-implicit-optional"
+          - "--warn-unused-ignores"
+          - "--warn-redundant-casts"
+
+  # ------------------------------------------------------------
+  # JavaScript / TypeScript — zero-tolerance hygiene
+  # ------------------------------------------------------------
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.2.5
+    hooks:
+      - id: prettier
+        files: "\\.(js|jsx|ts|tsx|json|md|yaml|yml)$"
+
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.0.0
+    hooks:
+      - id: eslint
+        files: "\\.(js|jsx|ts|tsx)$"
+        additional_dependencies:
+          - eslint@9
+          - @typescript-eslint/parser
+          - @typescript-eslint/eslint-plugin
+
+  - repo: https://github.com/typescript-eslint/typescript-eslint
+    rev: v7.2.0
+    hooks:
+      - id: eslint
+        name: "TypeScript strict lint"
+        files: "\\.(ts|tsx)$"
+        additional_dependencies:
+          - typescript
+          - eslint@9
+          - @typescript-eslint/parser
+          - @typescript-eslint/eslint-plugin
+
+  # ------------------------------------------------------------
+  # Security scanning (cheap, fast, mandatory)
+  # ------------------------------------------------------------
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.8
+    hooks:
+      - id: bandit
+        args: ["-ll", "-r", "."]
+
+  - repo: https://github.com/returntocorp/semgrep
+    rev: v1.60.0
+    hooks:
+      - id: semgrep
+        args:
+          - "--config=p/security-audit"
+          - "--config=p/python"
+          - "--config=p/typescript"

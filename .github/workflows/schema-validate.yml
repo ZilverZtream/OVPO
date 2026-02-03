@@ -1,0 +1,97 @@
+name: schema-validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-json-schemas:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Ajv CLI
+        run: |
+          npm install --no-save ajv@8 ajv-cli@5
+
+      - name: Validate schema JSON parses
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! ls schemas/**/*.json >/dev/null 2>&1; then
+            echo "No schemas/**/*.json found. Failing because schema gate is required."
+            exit 1
+          fi
+          node -e "
+            const fs=require('fs');
+            const glob=require('glob');
+            const files=glob.sync('schemas/**/*.json',{nodir:true});
+            for (const f of files){
+              try{ JSON.parse(fs.readFileSync(f,'utf8')); }
+              catch(e){ console.error('Invalid JSON:', f); throw e; }
+            }
+            console.log('All schema files are valid JSON:', files.length);
+          "
+
+      - name: Ajv validate each schema (draft 2020-12)
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx ajv --version
+          for f in $(ls -1 schemas/**/*.json); do
+            npx ajv validate \
+              --spec=draft2020 \
+              --strict=true \
+              --allowUnionTypes=true \
+              --all-errors=true \
+              -s "$f" \
+              -r "schemas/**/*.json"
+          done
+
+      - name: Basic $ref file existence check
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -e "
+            const fs=require('fs');
+            const path=require('path');
+            const glob=require('glob');
+            const files=glob.sync('schemas/**/*.json',{nodir:true});
+            let missing=0;
+            for (const f of files){
+              const obj=JSON.parse(fs.readFileSync(f,'utf8'));
+              const refs=[];
+              (function walk(x){
+                if (!x) return;
+                if (Array.isArray(x)) return x.forEach(walk);
+                if (typeof x==='object'){
+                  for (const [k,v] of Object.entries(x)){
+                    if (k==='$ref' && typeof v==='string') refs.push(v);
+                    walk(v);
+                  }
+                }
+              })(obj);
+              for (const r of refs){
+                if (r.startsWith('http://') || r.startsWith('https://')) continue;
+                if (r.startsWith('#')) continue;
+                const local = r.split('#')[0];
+                const target = path.resolve(path.dirname(f), local);
+                if (!fs.existsSync(target)){
+                  console.error('Missing $ref target:', f, '->', r, '(resolved:', target, ')');
+                  missing++;
+                }
+              }
+            }
+            if (missing>0){ process.exit(1); }
+            console.log('All local $ref targets exist.');
+          "

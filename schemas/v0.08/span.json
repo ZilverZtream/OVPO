@@ -1,0 +1,107 @@
+{
+  "$id": "https://ovpo.dev/schemas/v0.08/span.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OVPO Span v0.08",
+  "type": "object",
+  "required": [
+    "type",
+    "schema_version",
+    "span_id",
+    "trace_id",
+    "span_kind",
+    "name",
+    "start_time",
+    "status"
+  ],
+  "properties": {
+    "type": { "const": "span" },
+    "schema_version": { "const": "0.08" },
+
+    "span_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique span identifier (UUID v4)"
+    },
+    "trace_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Parent trace ID"
+    },
+    "parent_span_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Parent span for nesting"
+    },
+
+    "span_kind": {
+      "type": "string",
+      "enum": [
+        "SPAN_KIND_LOAD",
+        "SPAN_KIND_TEXT_ENCODE",
+        "SPAN_KIND_SAMPLING",
+        "SPAN_KIND_DECODE",
+        "SPAN_KIND_POSTPROCESS",
+        "SPAN_KIND_OUTPUT_ENCODE",
+        "SPAN_KIND_GUARD",
+        "SPAN_KIND_QUEUE"
+      ]
+    },
+
+    "name": {
+      "type": "string",
+      "maxLength": 128,
+      "description": "Human-readable span name"
+    },
+
+    "start_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When span started (RFC3339)"
+    },
+    "end_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When span ended (required if status=OK)"
+    },
+    "duration_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Duration in milliseconds"
+    },
+
+    "attributes": {
+      "type": "object",
+      "maxProperties": 100,
+      "patternProperties": {
+        "^(ovpo|custom)\\.[a-z0-9_.]+$": {
+          "oneOf": [
+            { "type": "string", "maxLength": 1024 },
+            { "type": "number" },
+            { "type": "integer" },
+            { "type": "boolean" }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "status": {
+      "type": "string",
+      "enum": ["OK", "ERROR"]
+    }
+  },
+
+  "allOf": [
+    {
+      "if": {
+        "properties": { "status": { "const": "OK" } },
+        "required": ["status"]
+      },
+      "then": {
+        "required": ["end_time"]
+      }
+    }
+  ],
+
+  "additionalProperties": false
+}

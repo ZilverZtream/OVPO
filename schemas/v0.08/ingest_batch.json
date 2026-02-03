@@ -1,0 +1,41 @@
+{
+  "$id": "https://ovpo.dev/schemas/v0.08/ingest_batch.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OVPO Ingest Batch v0.08",
+  "type": "object",
+  "required": ["schema_version", "batch_id", "sent_at", "items"],
+  "properties": {
+    "schema_version": {
+      "const": "0.08",
+      "description": "Schema version for this batch"
+    },
+    "batch_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique batch identifier (UUID v4 recommended)"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when batch was sent (RFC3339)"
+    },
+    "idempotency_key": {
+      "type": "string",
+      "maxLength": 128,
+      "description": "Optional idempotency key for deduplication"
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5000,
+      "items": {
+        "oneOf": [
+          { "$ref": "trace.json" },
+          { "$ref": "span.json" },
+          { "$ref": "frame_event.json" }
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}

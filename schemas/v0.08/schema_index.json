@@ -1,0 +1,10 @@
+{
+  "schema_version": "0.08",
+  "schemas": {
+    "ingest_batch": "ingest_batch.json",
+    "trace": "trace.json",
+    "span": "span.json",
+    "frame_event": "frame_event.json",
+    "artifact_manifest": "artifact_manifest.json"
+  }
+}

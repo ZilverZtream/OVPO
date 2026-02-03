@@ -1,0 +1,138 @@
+{
+  "$id": "https://ovpo.dev/schemas/v0.08/frame_event.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OVPO Frame Event v0.08",
+  "type": "object",
+  "required": [
+    "type",
+    "schema_version",
+    "event_id",
+    "trace_id",
+    "span_id",
+    "event_type",
+    "observed_at",
+    "frame_index",
+    "media_time_ms"
+  ],
+  "properties": {
+    "type": { "const": "event" },
+    "schema_version": { "const": "0.08" },
+
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique event identifier (UUID v4)"
+    },
+    "trace_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "span_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+
+    "event_type": {
+      "type": "string",
+      "enum": ["frame_generated", "frame_error", "frame_sampled"]
+    },
+
+    "observed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Wall-clock observation time"
+    },
+
+    "frame_index": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Sequential frame number (MUST be monotonic)"
+    },
+    "media_time_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Position in video timeline (MUST be monotonic)"
+    },
+
+    "step_index": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Denoising step index"
+    },
+
+    "latent_stats": {
+      "type": "object",
+      "properties": {
+        "mean": { "type": "number" },
+        "std_dev": { "type": "number", "minimum": 0 },
+        "min_val": { "type": "number" },
+        "max_val": { "type": "number" },
+        "nan_count": { "type": "integer", "minimum": 0 },
+        "inf_count": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+
+    "quality_metrics": {
+      "type": "object",
+      "properties": {
+        "motion_score": { "type": "number", "minimum": 0 },
+        "temporal_consistency": { "type": "number", "minimum": 0, "maximum": 1 },
+        "contrast_ratio": { "type": "number", "minimum": 0 },
+        "brightness_avg": { "type": "number", "minimum": 0, "maximum": 255 },
+        "edge_density": { "type": "number", "minimum": 0, "maximum": 1 },
+        "noise_estimate": { "type": "number", "minimum": 0 },
+        "clip_text_similarity": { "type": "number", "minimum": -1, "maximum": 1 },
+        "clip_image_similarity": { "type": "number", "minimum": -1, "maximum": 1 },
+        "aesthetic_score": { "type": "number", "minimum": 0, "maximum": 10 },
+        "artifact_score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "nsfw_score": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": true
+    },
+
+    "gpu_metrics": {
+      "type": "object",
+      "properties": {
+        "vram_used_mb": { "type": "integer", "minimum": 0 },
+        "gpu_utilization_pct": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "temperature_c": { "type": "integer", "minimum": 0, "maximum": 120 }
+      },
+      "additionalProperties": false
+    },
+
+    "artifact_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "uri"],
+        "properties": {
+          "kind": { "type": "string", "maxLength": 64 },
+          "uri": { "type": "string", "format": "uri", "maxLength": 2048 },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "content_type": { "type": "string", "maxLength": 128 },
+          "size_bytes": { "type": "integer", "minimum": 0 },
+          "ttl_hours": { "type": "integer", "minimum": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+
+    "provenance": {
+      "type": "object",
+      "required": ["source", "source_version"],
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": ["sdk", "processor"]
+        },
+        "source_version": { "type": "string", "maxLength": 64 },
+        "algorithm_id": { "type": "string", "maxLength": 128 },
+        "computed_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    }
+  },
+
+  "additionalProperties": false
+}

@@ -1,0 +1,90 @@
+name: lint
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  python-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install lint tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ruff mypy
+
+      - name: Ruff
+        run: |
+          ruff --version
+          ruff check .
+
+      - name: Python compile check
+        run: |
+          python -m compileall -q .
+
+      - name: Mypy (only if config exists)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f "mypy.ini" ] || [ -f "pyproject.toml" ] || [ -f "setup.cfg" ]; then
+            mypy --version
+            mypy .
+          else
+            echo "No mypy config found; skipping mypy."
+          fi
+
+  node-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect package.json
+        id: detect
+        shell: bash
+        run: |
+          if [ -f "package.json" ]; then
+            echo "has_node=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_node=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node
+        if: steps.detect.outputs.has_node == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Require lint script
+        if: steps.detect.outputs.has_node == 'true'
+        run: |
+          node -e "const p=require('./package.json'); if(!p.scripts||!p.scripts.lint){console.error('package.json must define scripts.lint'); process.exit(1);} console.log('lint script OK');"
+
+      - name: Install deps
+        if: steps.detect.outputs.has_node == 'true'
+        run: |
+          if [ -f "package-lock.json" ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Run lint
+        if: steps.detect.outputs.has_node == 'true'
+        run: npm run lint
+
+      - name: Skip (no Node project)
+        if: steps.detect.outputs.has_node == 'false'
+        run: echo "No package.json found; skipping Node lint job."
