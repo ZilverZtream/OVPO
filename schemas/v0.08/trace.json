@@ -20,11 +20,13 @@
     "trace_id": {
       "type": "string",
       "format": "uuid",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
       "description": "Unique trace identifier (UUID v4)"
     },
     "parent_trace_id": {
       "type": "string",
       "format": "uuid",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
       "description": "Parent trace for multi-stage pipelines"
     },
     "tenant_id": {
@@ -134,6 +136,11 @@
     "completed_at": { "type": "string", "format": "date-time" }
   },
 
+  "oneOf": [
+    { "required": ["pipeline_config"] },
+    { "required": ["pipeline_config_ref"] }
+  ],
+
   "allOf": [
     {
       "if": {
@@ -142,17 +149,6 @@
       },
       "then": {
         "required": ["failure"]
-      }
-    },
-    {
-      "if": {
-        "properties": { "pipeline_config_ref": { "type": "string" } },
-        "required": ["pipeline_config_ref"]
-      },
-      "then": {
-        "properties": {
-          "pipeline_config": { "type": "object", "maxProperties": 0 }
-        }
       }
     }
   ],

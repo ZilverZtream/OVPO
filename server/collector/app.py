@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Dict
+from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 from ovpo.schemas import validate_json
-
 
 app = FastAPI(
     title="OVPO Collector (dev scaffold)",
@@ -18,12 +17,22 @@ app = FastAPI(
 
 
 @app.get("/health")
-def health() -> Dict[str, Any]:
+def health() -> dict[str, Any]:
     return {"status": "ok", "service": "collector", "ts": int(time.time())}
 
 
-@app.post("/v0.08/ingest")
-async def ingest(request: Request) -> JSONResponse:
+@app.get("/ready")
+def ready() -> dict[str, Any]:
+    return {"status": "ok"}
+
+
+@app.get("/metrics")
+def metrics() -> dict[str, Any]:
+    return {"status": "not_implemented"}
+
+
+@app.post("/v1/ingest/batch")
+async def ingest_batch(request: Request) -> JSONResponse:
     """
     Dev scaffolding endpoint.
 

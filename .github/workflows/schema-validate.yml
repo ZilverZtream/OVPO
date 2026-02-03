@@ -95,3 +95,38 @@ jobs:
             if (missing>0){ process.exit(1); }
             console.log('All local $ref targets exist.');
           "
+
+  validate-examples:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -e .
+
+      - name: Validate positive examples
+        shell: bash
+        run: |
+          set -euo pipefail
+          ovpo validate-json schemas/v0.08/examples/valid/ingest_batch_minimal.json --schema ingest_batch.json
+
+      - name: Validate negative examples
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Expecting validation to fail..."
+          set +e
+          ovpo validate-json schemas/v0.08/examples/invalid/ingest_batch_missing_batch_id.json --schema ingest_batch.json
+          exit_code=$?
+          set -e
+          if [ $exit_code -eq 0 ]; then
+            echo "Error: Invalid schema was accepted, but should have been rejected."
+            exit 1
+          fi
+          echo "OK: Invalid schema was correctly rejected."

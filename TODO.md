@@ -48,7 +48,7 @@ Conventions:
   - [ ] (P1) Add labels taxonomy (area/*, prio/*, type/*)
 
 ### 0.2 CI/CD baseline
-  - [ ] (P0) GitHub Actions: lint + test for each component
+  - [~] (P0) GitHub Actions: lint + test for each component
   - [ ] (P0) GitHub Actions: build docker images on main
   - [ ] (P0) GitHub Actions: schema validation check
   - [ ] (P0) GitHub Actions: license header / SPDX checks
@@ -60,14 +60,14 @@ Conventions:
 
 ### 0.3 Local dev bootstrap
   - [ ] (P0) Devcontainer setup (optional)
-  - [ ] (P0) Makefile with common targets:
+  - [x] (P0) Makefile with common targets:
         - make lint
         - make test
         - make build
         - make up (docker compose)
         - make down
         - make seed
-  - [ ] (P0) Docker compose for local stack:
+  - [x] (P0) Docker compose for local stack:
         - Postgres
         - Redis
         - ClickHouse
@@ -77,7 +77,7 @@ Conventions:
         - Processor
         - Query API
         - UI
-  - [ ] (P0) `.env.example` with all variables
+  - [x] (P0) `.env.example` with all variables
   - [ ] (P0) Local TLS (mkcert) optional path
   - [ ] (P1) One-command setup script (Linux/Windows friendly)
   - [ ] (P1) Seed script to create first tenant + API key
@@ -115,23 +115,23 @@ Conventions:
         - schemas/v0.08/span.json
         - schemas/v0.08/frame_event.json
         - schemas/v0.08/artifact_manifest.json
-  - [ ] (P0) Ensure `$ref` paths resolve correctly (relative ref integrity)
+  - [x] (P0) Ensure `$ref` paths resolve correctly (relative ref integrity)
   - [x] (P0) Add top-level `schemas/v0.08/index.json` referencing all
   - [x] (P0) Add schema examples folder with valid JSON payloads
   - [x] (P0) Add invalid fixture payloads for negative tests
-  - [ ] (P0) Ensure UUID format constraints align with server validators
-  - [ ] (P0) Ensure tenant_id regex aligned across schema + server
-  - [ ] (P0) Ensure prompt_hash and user_id_hash patterns consistent
-  - [ ] (P0) Ensure `pipeline_config_ref` mutual exclusion enforced
-  - [ ] (P0) Ensure status=FAILED implies failure object enforced
+  - [x] (P0) Ensure UUID format constraints align with server validators
+  - [x] (P0) Ensure tenant_id regex aligned across schema + server
+  - [x] (P0) Ensure prompt_hash and user_id_hash patterns consistent
+  - [x] (P0) Ensure `pipeline_config_ref` mutual exclusion enforced
+  - [x] (P0) Ensure status=FAILED implies failure object enforced
 
 ### 2.2 Schema validation CLI tooling
   - [x] (P0) Add a small `ovpo-schema` validator tool:
         - validate batch file
         - validate single item
         - validate folder recursively
-  - [ ] (P0) CI job: run schema validation on all examples
-  - [ ] (P0) CI job: run negative fixtures must fail
+  - [x] (P0) CI job: run schema validation on all examples
+  - [x] (P0) CI job: run negative fixtures must fail
   - [ ] (P1) Add schema packaging for:
         - npm package @ovpo/schemas
         - python package ovpo-schemas
@@ -272,10 +272,11 @@ Conventions:
 
 ### 5.1 Service skeleton
   - [ ] (P0) Choose implementation language (Go or Rust)
-  - [ ] (P0) Create HTTP server with:
+  - [x] (P0) Create HTTP server with:
         - /health
         - /ready
         - /metrics
+  - [ ] (P0) Create HTTP server with:
         - /v1/ingest/batch
   - [ ] (P0) Request parsing and size enforcement (5MB)
   - [ ] (P0) JSON schema validation (draft 2020-12)
