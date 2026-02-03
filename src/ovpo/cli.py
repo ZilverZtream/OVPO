@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable, List, Optional
 
 import typer
 
 from ovpo.schemas import SCHEMA_VERSION, load_schema, validate_file
-
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
@@ -55,7 +54,7 @@ def validate_folder_cmd(
     fail_fast: bool = typer.Option(False, "--fail-fast", help="Stop at first failure."),
 ) -> None:
     """Validate all *.json files in a folder recursively."""
-    failures: List[str] = []
+    failures: list[str] = []
     for p in _iter_json_files(folder):
         try:
             validate_file(p, schema)

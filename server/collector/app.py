@@ -5,7 +5,6 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
-
 from ovpo.schemas import validate_json
 
 app = FastAPI(

@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastapi import FastAPI
-
 
 app = FastAPI(
     title="OVPO Query API (dev scaffold)",
@@ -15,12 +14,12 @@ app = FastAPI(
 
 
 @app.get("/health")
-def health() -> Dict[str, Any]:
+def health() -> dict[str, Any]:
     return {"status": "ok", "service": "query-api", "ts": int(time.time())}
 
 
 @app.get("/v0.08/traces/{trace_id}")
-def get_trace(trace_id: str) -> Dict[str, Any]:
+def get_trace(trace_id: str) -> dict[str, Any]:
     """
     Placeholder response.
 

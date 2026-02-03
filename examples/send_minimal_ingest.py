@@ -7,7 +7,9 @@ import httpx
 
 
 def main() -> None:
-    payload = json.loads(Path("schemas/v0.08/examples/valid/ingest_batch_minimal.json").read_text(encoding="utf-8"))
+    payload = json.loads(
+        Path("schemas/v0.08/examples/valid/ingest_batch_minimal.json").read_text(encoding="utf-8")
+    )
 
     url = "http://localhost:8080/v0.08/ingest"
     with httpx.Client(timeout=10.0) as client:

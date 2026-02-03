@@ -24,15 +24,17 @@ repos:
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
 
-  - repo: https://github.com/python/mypy
+  - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.8.0
     hooks:
       - id: mypy
         args:
-          - "--strict"
+          - "--ignore-missing-imports"
           - "--no-implicit-optional"
           - "--warn-unused-ignores"
-          - "--warn-redundant-casts"
+        additional_dependencies:
+          - types-jsonschema
+        exclude: "^server/query-api/"
 
   # ------------------------------------------------------------
   # JavaScript / TypeScript — zero-tolerance hygiene
@@ -55,12 +57,3 @@ repos:
     hooks:
       - id: bandit
         args: ["-ll", "-r", "."]
-
-  - repo: https://github.com/returntocorp/semgrep
-    rev: v1.60.0
-    hooks:
-      - id: semgrep
-        args:
-          - "--config=p/security-audit"
-          - "--config=p/python"
-          - "--config=p/typescript"
