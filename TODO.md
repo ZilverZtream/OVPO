@@ -37,8 +37,8 @@ Conventions:
         - /examples
         - /tests
         - /tools
-  - [ ] (P0) Add editor configs: .editorconfig, .gitattributes
-  - [ ] (P0) Add formatting rules:
+  - [x] (P0) Add editor configs: .editorconfig, .gitattributes
+  - [x] (P0) Add formatting rules:
         - Python: ruff + black
         - Go/Rust: standard fmt
         - TS: eslint + prettier

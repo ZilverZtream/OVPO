@@ -15,6 +15,59 @@ repos:
         args: ["--maxkb=2048"]
 
   # ------------------------------------------------------------
+  # Forbidden tokens & architectural guardrails
+  # ------------------------------------------------------------
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      # ABSOLUTE BAN: speculative / lazy comments
+      - id: pygrep
+        name: "Disallow forbidden tokens (TODO/FIXME/BUG/HACK/RISK/ISSUE/LATER)"
+        args:
+          - "--regexp"
+          - "(?i)\b(TODO|FIXME|BUG|HACK|RISK|ISSUE|LATER)\b"
+        exclude: |
+          (?x)^(
+            docs/.*
+            spec/.*
+            schemas/.*
+            rfcs/.*
+            SECURITY\.md
+            CODE_OF_CONDUCT\.md
+            CONTRIBUTING\.md
+            GOVERNANCE\.md
+            README\.md
+          )$
+
+      # Cursor pagination only (NO OFFSET EVER)
+      - id: pygrep
+        name: "Disallow OFFSET pagination (cursor pagination only)"
+        args:
+          - "--regexp"
+          - "(?i)\bOFFSET\s+\d+\b"
+        exclude: |
+          (?x)^(
+            spec/.*
+            docs/.*
+            schemas/.*
+            rfcs/.*
+          )$
+
+      # Guardrail: tenant_id must never be user-supplied
+      - id: pygrep
+        name: "Guardrail: forbid user-supplied tenant_id"
+        args:
+          - "--regexp"
+          - "(?i)(request\\.(args|get_json|get)\\(.*tenant_id|req\\.query.*tenant_id|tenant_id\\s*=\\s*request\\.)"
+        exclude: |
+          (?x)^(
+            spec/.*|
+            docs/.*|
+            schemas/.*|
+            rfcs/.*|
+          )$
+
+  # ------------------------------------------------------------
   # Python — formatting, linting, static correctness
   # ------------------------------------------------------------
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -41,7 +94,7 @@ repos:
     rev: v9.0.0
     hooks:
       - id: eslint
-        files: "\\.(js|jsx|ts|tsx)$"
+        files: "\.(js|jsx|ts|tsx)$"
         additional_dependencies:
           - eslint@9
           - "@typescript-eslint/parser"
