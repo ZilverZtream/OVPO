@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, Mapping
+from typing import Any
 
 import jsonschema
-
 
 SCHEMA_VERSION = "v0.08"
 
@@ -28,7 +28,7 @@ def schema_path(name: str) -> Path:
 
 
 @lru_cache(maxsize=1)
-def _schema_store() -> Mapping[str, Dict[str, Any]]:
+def _schema_store() -> Mapping[str, dict[str, Any]]:
     """
     Preload all schemas in schemas/v0.08 into a store for $ref resolution.
 
@@ -38,7 +38,7 @@ def _schema_store() -> Mapping[str, Dict[str, Any]]:
       - file://... URIs for local paths
       - bare filenames (best effort for relative refs)
     """
-    store: Dict[str, Dict[str, Any]] = {}
+    store: dict[str, dict[str, Any]] = {}
     for p in schemas_dir().glob("*.json"):
         doc = json.loads(p.read_text(encoding="utf-8"))
         doc_id = doc.get("$id")
@@ -49,8 +49,8 @@ def _schema_store() -> Mapping[str, Dict[str, Any]]:
     return store
 
 
-def load_schema(name: str) -> Dict[str, Any]:
-    return json.loads(schema_path(name).read_text(encoding="utf-8"))
+def load_schema(name: str) -> dict[str, Any]:
+    return json.loads(schema_path(name).read_text(encoding="utf-8"))  # type: ignore[no-any-return]
 
 
 def validate_json(instance: Any, schema_name: str) -> None:
@@ -60,7 +60,7 @@ def validate_json(instance: Any, schema_name: str) -> None:
     resolver = jsonschema.RefResolver(
         base_uri=schema_file.as_uri(),
         referrer=schema,
-        store=dict(_schema_store()),
+        store=dict(_schema_store()),  # type: ignore[arg-type]
     )
 
     validator_cls = jsonschema.validators.validator_for(schema)

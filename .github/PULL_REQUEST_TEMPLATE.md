@@ -1,7 +1,7 @@
 # OVPO Pull Request
 
-⚠️ **READ BEFORE SUBMITTING**  
-This repository enforces **strict, automated policy gates**.  
+⚠️ **READ BEFORE SUBMITTING**
+This repository enforces **strict, automated policy gates**.
 If any item below is not satisfied, your PR **will not be merged**.
 
 ---
@@ -38,7 +38,7 @@ If this PR affects **schemas, ingestion, or storage semantics**, explicitly stat
 All items below are **hard requirements**.
 
 ### Code Quality
-- [ ] No forbidden comment markers present  
+- [ ] No forbidden comment markers present
   *(NO TODO, FIXME, BUG, ISSUE, RISK, HACK, XXX, etc.)*
 - [ ] Comments explain **what / why**, not future work
 - [ ] No dead code, commented-out blocks, or placeholder logic
@@ -113,5 +113,5 @@ By submitting this PR, you confirm:
 
 ---
 
-**Incomplete PRs will be closed, not fixed.**  
+**Incomplete PRs will be closed, not fixed.**
 **Quality is enforced by design.**

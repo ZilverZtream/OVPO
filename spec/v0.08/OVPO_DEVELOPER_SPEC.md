@@ -1,8 +1,8 @@
 # OVPO — Open Video Pipeline Observatory
-**Developer Specification v0.08**  
-**Status:** Implementation-Ready Specification  
-**Date:** February 3, 2026  
-**Authors:** Core Team + Community Contributors  
+**Developer Specification v0.08**
+**Status:** Implementation-Ready Specification
+**Date:** February 3, 2026
+**Authors:** Core Team + Community Contributors
 **License:** Apache 2.0
 
 ---
@@ -36,7 +36,7 @@ Its purpose is to make video generation systems:
 - **Auditable** — Ensuring compliance, cost attribution, and usage governance in multi-tenant environments.
 - **Resilient** — Designed for high availability and disaster recovery in production environments.
 
-**OVPO is not a video generator.**  
+**OVPO is not a video generator.**
 **OVPO is the infrastructure that explains video generation.**
 
 ### 1.2 Non-Goals
@@ -66,7 +66,7 @@ This document uses RFC 2119 terminology:
 ## 3. Design Principles
 
 ### 3.1 Video-Native Observability
-Traditional observability treats a **request** as the unit of work.  
+Traditional observability treats a **request** as the unit of work.
 OVPO treats a **generation job** as the unit of work and a **frame** as the unit of fidelity.
 
 **Key Distinctions:**
@@ -133,7 +133,7 @@ No execution model is assumed or enforced.
 
 **All IDs MUST be valid UUID v4 (RFC 4122) in canonical form:**
 
-✅ **Correct:** `550e8400-e29b-41d4-a716-446655440000`  
+✅ **Correct:** `550e8400-e29b-41d4-a716-446655440000`
 ❌ **Wrong:** `t-8888-9999`, `trace_12345`, `550e8400e29b41d4a716446655440000`
 
 **ID Fields:**
@@ -775,7 +775,7 @@ SET app.current_tenant_id = 'org-acme';
 def test_tenant_isolation():
     # Create trace for tenant A
     trace_a = create_trace(tenant_id="org-a")
-    
+
     # Try to access from tenant B context
     with tenant_context("org-b"):
         result = get_trace(trace_a.id)
@@ -1065,7 +1065,7 @@ curl -G "https://api.ovpo.dev/v1/traces" \
   "properties": {
     "type": {"const": "trace"},
     "schema_version": {"const": "0.08"},
-    
+
     "trace_id": {
       "type": "string",
       "format": "uuid",
@@ -1087,13 +1087,13 @@ curl -G "https://api.ovpo.dev/v1/traces" \
       "pattern": "^[a-f0-9]{64}$",
       "description": "SHA-256 hash of user identifier"
     },
-    
+
     "status": {
       "type": "string",
       "enum": ["PENDING", "GENERATING", "COMPLETED", "FAILED", "CANCELLED", "TIMEOUT", "PARTIAL"],
       "description": "Current trace status"
     },
-    
+
     "pipeline_config": {
       "type": "object",
       "description": "Generation configuration snapshot"
@@ -1104,7 +1104,7 @@ curl -G "https://api.ovpo.dev/v1/traces" \
       "maxLength": 2048,
       "description": "External reference to large config"
     },
-    
+
     "input_context": {
       "type": "object",
       "required": ["prompt_hash"],
@@ -1130,11 +1130,11 @@ curl -G "https://api.ovpo.dev/v1/traces" \
       },
       "additionalProperties": true
     },
-    
+
     "output_manifest": {
       "$ref": "artifact_manifest.json"
     },
-    
+
     "cost_attribution": {
       "type": "object",
       "properties": {
@@ -1148,7 +1148,7 @@ curl -G "https://api.ovpo.dev/v1/traces" \
       },
       "additionalProperties": false
     },
-    
+
     "failure": {
       "type": "object",
       "required": ["kind", "message", "retryable"],
@@ -1165,24 +1165,24 @@ curl -G "https://api.ovpo.dev/v1/traces" \
       },
       "additionalProperties": false
     },
-    
+
     "retry_count": {
       "type": "integer",
       "minimum": 0,
       "default": 0
     },
-    
+
     "tags": {
       "type": "object",
       "additionalProperties": {"type": "string", "maxLength": 256},
       "maxProperties": 50
     },
-    
+
     "created_at": {"type": "string", "format": "date-time"},
     "started_at": {"type": "string", "format": "date-time"},
     "completed_at": {"type": "string", "format": "date-time"}
   },
-  
+
   "allOf": [
     {
       "if": {
@@ -1205,7 +1205,7 @@ curl -G "https://api.ovpo.dev/v1/traces" \
       }
     }
   ],
-  
+
   "additionalProperties": false
 }
 ```
@@ -1233,7 +1233,7 @@ curl -G "https://api.ovpo.dev/v1/traces" \
   "properties": {
     "type": {"const": "span"},
     "schema_version": {"const": "0.08"},
-    
+
     "span_id": {
       "type": "string",
       "format": "uuid",
@@ -1249,7 +1249,7 @@ curl -G "https://api.ovpo.dev/v1/traces" \
       "format": "uuid",
       "description": "Parent span for nesting"
     },
-    
+
     "span_kind": {
       "type": "string",
       "enum": [
@@ -1263,13 +1263,13 @@ curl -G "https://api.ovpo.dev/v1/traces" \
         "SPAN_KIND_QUEUE"
       ]
     },
-    
+
     "name": {
       "type": "string",
       "maxLength": 128,
       "description": "Human-readable span name"
     },
-    
+
     "start_time": {
       "type": "string",
       "format": "date-time",
@@ -1285,7 +1285,7 @@ curl -G "https://api.ovpo.dev/v1/traces" \
       "minimum": 0,
       "description": "Duration in milliseconds"
     },
-    
+
     "attributes": {
       "type": "object",
       "maxProperties": 100,
@@ -1301,13 +1301,13 @@ curl -G "https://api.ovpo.dev/v1/traces" \
       },
       "additionalProperties": false
     },
-    
+
     "status": {
       "type": "string",
       "enum": ["OK", "ERROR"]
     }
   },
-  
+
   "allOf": [
     {
       "if": {
@@ -1319,7 +1319,7 @@ curl -G "https://api.ovpo.dev/v1/traces" \
       }
     }
   ],
-  
+
   "additionalProperties": false
 }
 ```
@@ -1348,7 +1348,7 @@ curl -G "https://api.ovpo.dev/v1/traces" \
   "properties": {
     "type": {"const": "event"},
     "schema_version": {"const": "0.08"},
-    
+
     "event_id": {
       "type": "string",
       "format": "uuid",
@@ -1362,18 +1362,18 @@ curl -G "https://api.ovpo.dev/v1/traces" \
       "type": "string",
       "format": "uuid"
     },
-    
+
     "event_type": {
       "type": "string",
       "enum": ["frame_generated", "frame_error", "frame_sampled"]
     },
-    
+
     "observed_at": {
       "type": "string",
       "format": "date-time",
       "description": "Wall-clock observation time"
     },
-    
+
     "frame_index": {
       "type": "integer",
       "minimum": 0,
@@ -1384,13 +1384,13 @@ curl -G "https://api.ovpo.dev/v1/traces" \
       "minimum": 0,
       "description": "Position in video timeline (MUST be monotonic)"
     },
-    
+
     "step_index": {
       "type": "integer",
       "minimum": 0,
       "description": "Denoising step index"
     },
-    
+
     "latent_stats": {
       "type": "object",
       "properties": {
@@ -1403,7 +1403,7 @@ curl -G "https://api.ovpo.dev/v1/traces" \
       },
       "additionalProperties": false
     },
-    
+
     "quality_metrics": {
       "type": "object",
       "properties": {
@@ -1421,7 +1421,7 @@ curl -G "https://api.ovpo.dev/v1/traces" \
       },
       "additionalProperties": true
     },
-    
+
     "gpu_metrics": {
       "type": "object",
       "properties": {
@@ -1431,7 +1431,7 @@ curl -G "https://api.ovpo.dev/v1/traces" \
       },
       "additionalProperties": false
     },
-    
+
     "artifact_refs": {
       "type": "array",
       "items": {
@@ -1448,7 +1448,7 @@ curl -G "https://api.ovpo.dev/v1/traces" \
         "additionalProperties": false
       }
     },
-    
+
     "provenance": {
       "type": "object",
       "required": ["source", "source_version"],
@@ -1464,7 +1464,7 @@ curl -G "https://api.ovpo.dev/v1/traces" \
       "additionalProperties": false
     }
   },
-  
+
   "additionalProperties": false
 }
 ```
@@ -1660,7 +1660,7 @@ def test_timestamp_skew_tolerance(trace):
 @suite.test
 def test_overhead(baseline_duration_sec, instrumented_duration_sec):
     """Instrumentation overhead must be <2%."""
-    overhead_pct = ((instrumented_duration_sec - baseline_duration_sec) / 
+    overhead_pct = ((instrumented_duration_sec - baseline_duration_sec) /
                     baseline_duration_sec) * 100
     assert overhead_pct < 2.0, f"Overhead {overhead_pct:.2f}% exceeds 2% limit"
 
@@ -1670,7 +1670,7 @@ def test_fail_open(pipeline, ovpo_client):
     """Pipeline must continue if OVPO is unavailable."""
     # Simulate OVPO down
     ovpo_client.endpoint = "http://unreachable:9999"
-    
+
     # Pipeline should complete successfully
     result = pipeline.run()
     assert result.success, "Pipeline failed when OVPO was down"
@@ -1688,45 +1688,45 @@ print(results.summary())
 def validate_frame_ordering(events: List[FrameEvent]) -> ValidationResult:
     """
     Validate frame ordering with distributed system considerations.
-    
+
     Invariants:
     1. frame_index MUST be strictly monotonic
     2. media_time_ms MUST be monotonic
     3. observed_at MAY be non-monotonic within tolerance
     """
     errors = []
-    
+
     sorted_by_index = sorted(events, key=lambda e: e.frame_index)
-    
+
     # Check frame_index monotonicity (strict)
     for i in range(len(sorted_by_index) - 1):
         curr = sorted_by_index[i]
         next = sorted_by_index[i + 1]
-        
+
         if next.frame_index <= curr.frame_index:
             errors.append(f"Non-monotonic frame_index: {curr.frame_index} -> {next.frame_index}")
-    
+
     # Check media_time_ms monotonicity
     for i in range(len(sorted_by_index) - 1):
         curr = sorted_by_index[i]
         next = sorted_by_index[i + 1]
-        
+
         if next.media_time_ms < curr.media_time_ms:
             errors.append(f"Non-monotonic media_time_ms at frame {next.frame_index}")
-    
+
     # Check observed_at with skew tolerance
     MAX_SKEW_SEC = 5
     for i in range(len(sorted_by_index) - 1):
         curr = sorted_by_index[i]
         next = sorted_by_index[i + 1]
-        
+
         delta_sec = (next.observed_at - curr.observed_at).total_seconds()
         if delta_sec < -MAX_SKEW_SEC:
             errors.append(
                 f"Clock skew exceeds {MAX_SKEW_SEC}s tolerance: "
                 f"{delta_sec:.2f}s between frames {curr.frame_index} and {next.frame_index}"
             )
-    
+
     return ValidationResult(
         passed=len(errors) == 0,
         errors=errors
@@ -1854,8 +1854,8 @@ Users MUST use `custom.*` prefix for custom attributes:
 
 ---
 
-**Document Status:** Implementation-Ready  
-**Next Review:** After 10,000 production traces analyzed  
+**Document Status:** Implementation-Ready
+**Next Review:** After 10,000 production traces analyzed
 **Feedback:** https://github.com/ovpo-project/ovpo/issues
 
 ---

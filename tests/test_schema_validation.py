@@ -4,7 +4,6 @@ from pathlib import Path
 
 import pytest
 from jsonschema import ValidationError
-
 from ovpo.schemas import validate_file
 
 
